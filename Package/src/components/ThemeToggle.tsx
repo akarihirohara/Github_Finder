@@ -9,7 +9,7 @@ export default function ThemeToggle() {
     return (
         <button className="button ghost" onClick={toggle} aria-label="Toggle theme">
             {/* 視覚的なフィードバックとしてアイコンを出し分け */}
-            {mode === "light" ? "🌞" : "🌙"}
+            {mode === "light" ? "Light Mode" : "Dark Mode"}
         </button>
     );
 }

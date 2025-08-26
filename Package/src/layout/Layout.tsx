@@ -25,7 +25,7 @@ export default function Layout() {
             <main className="container">
                 <Outlet />
             </main>
-            <footer className="footer">© {new Date().getFullYear()} GitHub Finder</footer>
+            <footer className="footer">© {new Date().getFullYear()} Akari Hirohara</footer>
         </div>
     );
 }

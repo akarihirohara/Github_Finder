@@ -88,9 +88,9 @@ export default function UserDetail() {
                     <span className="badge">Public Repos: {profile.public_repos}</span>
                 </div>
                 <div style={{ marginTop: 12 }}>
-                    <a className="button" href={profile.html_url} target="_blank" rel="noreferrer">Show GitHub Profile ↗</a>
+                    <a className="button" href={profile.html_url} target="_blank" rel="noreferrer" >Show GitHub Profile ↗</a>
                 </div>
-                <div style={{ marginTop: 12 }}>
+                <div style={{ marginTop: 24 }}>
                     <Link className="button" to="/">Back To Search</Link>
                 </div>
             </aside>
@@ -100,7 +100,7 @@ export default function UserDetail() {
             <section>
                 <div className="section-title">Public Repositories</div>
                 {repos.length === 0 && <p className="badge">公開リポジトリがありません。</p>}
-                <div className="grid">
+                <div className="results-grid">
                     {repos.map((repo) => (
                         <RepoCard key={repo.id} repo={repo} />
                     ))}

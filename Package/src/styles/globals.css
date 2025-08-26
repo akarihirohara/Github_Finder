@@ -22,6 +22,15 @@ html[data-theme="dark"] {
     --border: #1f2937; /* 枠線 */
 }
 
+/* 全体を縦方向flexにする */
+html, body, #root { height: 100%; }
+
+/* ルート直下の最上位ラッパだけをflex化 */
+#root > div {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
@@ -33,7 +42,11 @@ body {
 }
 
 
-.container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+.container {
+  width: min(100% - 32px, 1100px);
+  padding-top: 16px;
+  margin: 0 auto;
+}
 .header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 12px 24px; border-bottom: 1px solid var(--border);
@@ -44,15 +57,19 @@ body {
 .nav a.active { color: var(--brand); }
 
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.results-grid {
+  display: grid !important; /* ← 上書きされないよう強制 */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px;}
 .row { display: flex; gap: 12px; align-items: center; }
 .button {
     appearance: none; border: 1px solid var(--border); background: var(--bg);
     color: var(--fg); padding: 8px 12px; border-radius: 10px; cursor: pointer;
 }
 .button.primary { background: var(--brand); color: white; border-color: transparent; }
-.button.ghost { background: transparent; }
+.button.ghost { background: transparent; margin-left: 16px;}
 .button:disabled { opacity: .6; cursor: not-allowed; }
 .input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); }
 
@@ -63,5 +80,17 @@ body {
 
 .section-title { margin: 8px 0 16px; font-size: 18px; font-weight: 600; }
 
+/* mainを伸び縮みさせて余白を埋める */
+main {
+  flex: 1;
+}
 
-.footer { border-top: 1px solid var(--border); margin-top: 24px; padding: 16px 24px; color: var(--muted); }
+/* footerを下に配置。高さも固定できる */
+.footer {
+  height: 60px;              /* 一定サイズにしたい場合は高さ指定 */
+  border-top: 1px solid var(--border);
+  padding: 16px 24px;
+  color: var(--muted);
+  background: var(--bg);
+  margin-top: 16px;
+}

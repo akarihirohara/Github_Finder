@@ -98,7 +98,7 @@ export default function Home() {
             {searchResult.length > 0 && (
                 <div>
                     <div className="section-title">Results</div>
-                    <div className="grid">
+                    <div className="results-grid">
                         {searchResult.map((u) => (
                             <UserCard key={u.id} user={u} />
                         ))}
