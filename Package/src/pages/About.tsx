@@ -14,8 +14,8 @@ export default function About() {
         src={profileImg}
         alt="My Profile"
         style={{
-          width: "120px",
-          height: "120px",
+          width: "200px",
+          height: "200px",
           borderRadius: "50%",       // 丸く切り抜き
           objectFit: "cover",
           marginBottom: "16px",

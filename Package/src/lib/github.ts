@@ -17,18 +17,22 @@ const gh = axios.create({
 type Opt = { signal?: AbortSignal; page?: number };
 
 // ユーザー検索（/search/users）。Home で使うため、最低限のフィールドに整形して返す
-export async function searchUsers(q: string, opt: Opt = {}): Promise<UserSummary[]> {
+// lib/github.ts
+export async function searchUsers(
+  q: string,
+  opt: Opt = {}
+): Promise<{ items: UserSummary[]; total: number }> {
   const { data } = await gh.get("/search/users", {
-    params: { q, per_page: 30, page: opt.page ?? 1 }, // ← page を指定
+    params: { q, per_page: 30, page: opt.page ?? 1 },
     signal: opt.signal,
   });
-  return (data.items ?? []).map((u: any) => ({
-    id: u.id,
-    login: u.login,
-    avatar_url: u.avatar_url,
-    html_url: u.html_url,
+  const items = (data?.items ?? []).map((u: any) => ({
+    id: u.id, login: u.login, avatar_url: u.avatar_url, html_url: u.html_url
   }));
+  const total = Number(data?.total_count ?? 0);
+  return { items, total };
 }
+
 
 // ユーザー詳細（/users/:login）
 export async function getUser(login: string, opt: Opt = {}) {

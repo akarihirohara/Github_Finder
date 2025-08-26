@@ -18,58 +18,51 @@ export default function Home() {
     const [status, setStatus] = useState<Status>("idle"); // 表示状態
     const [error, setError] = useState<string | null>(null); // エラーメッセージ
     const cancelRef = useRef<AbortController | null>(null); // 直近リクエストのキャンセル用
-    const [page, setPage] = useState(1); // 現在のページ番号
-    const [hasMore, setHasMore] = useState(false); // 次のページがあるか判定
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(false);
+    const [total, setTotal] = useState(0); // state に total を追加
 
+    const PER_PAGE = 30;
 
-    // 初回：保存された検索語があれば自動検索
-    useEffect(() => {
-        if (!searchWord.trim()) return; // 空なら何もしない
-        doSearch(searchWord);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    // 実際の検索処理（共通化）
-    const doSearch = async (q: string, page = 1) => {
+    const doSearch = async (q: string, pageArg = 1) => {
         if (!q.trim()) return;
         setStatus("loading");
         setError(null);
-
-        if (page === 1) {
-            localStorage.setItem(KEY, q);
-        }
+        if (pageArg === 1) localStorage.setItem(KEY, q);
 
         cancelRef.current?.abort();
         const controller = new AbortController();
         cancelRef.current = controller;
 
         try {
-            const items = await searchUsers(q, { signal: controller.signal, page });
-
+            const { items, total } = await searchUsers(q, { signal: controller.signal, page: pageArg });
             if (controller.signal.aborted || cancelRef.current !== controller) return;
 
-            if (page === 1) {
-                setSearchResult(items);
-            } else {
-                setSearchResult(prev => [...prev, ...items]);
-            }
+            if (pageArg === 1) setSearchResult(items);
+            else setSearchResult(prev => [...prev, ...items]);
 
-            // 👇 追加：30件返ってきたら「次もある」と判断
-            setHasMore(items.length === 30);
+            setTotal(Math.min(total, 1000)); // GitHubは検索の上限1000件
+            // ★「今表示している件数 < 合計」なら まだ続きがある
+            const shown = (pageArg) * PER_PAGE;
+            setHasMore(shown < Math.min(total, 1000) && items.length > 0);
 
             setStatus("success");
         } catch (e: any) {
             if (e?.name === "CanceledError" || e?.name === "AbortError") return;
             const code = e?.response?.status;
-            if (code === 403 || code === 429) setError("Rate limiting in progress. Please wait a while and try again, or set up PAT.");
-            else if (e?.request && !e?.response) setError("There is a network error. Please check your connection.");
-            else setError("Search failed. Please try again.");
+            if (code === 403 || code === 429) setError("レート制限中です。時間をおいて再試行するか、PAT を設定してください。");
+            else if (e?.request && !e?.response) setError("ネットワークエラーです。接続を確認してください。");
+            else setError("検索に失敗しました。もう一度お試しください。");
             setStatus("error");
         }
     };
 
+
     // フォーム送信時（Search ボタンまたは Enter）
-    const handleSubmit = () => doSearch(searchWord);
+    const handleSubmit = () => {
+        setPage(1);                // ★ ここを追加
+        doSearch(searchWord, 1);   // ★ doSearch にも page=1 を渡す
+    };
 
     // クリア処理：入力/結果/状態を初期化し、保存も削除
     const handleClear = () => {

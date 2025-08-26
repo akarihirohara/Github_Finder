@@ -1,6 +1,16 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      (function() {
+        const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const saved = localStorage.getItem("ghf-theme");
+        const locked = localStorage.getItem("ghf-theme-lock") === "1";
+        const mode = saved ?? (isDark ? "dark" : "light");
+
+        document.documentElement.setAttribute("data-theme", mode);
+      })();
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/github-finder-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

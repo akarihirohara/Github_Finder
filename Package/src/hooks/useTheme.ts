@@ -3,29 +3,53 @@
 // =============================================
 import { useEffect, useState } from "react";
 
-
 type Mode = "light" | "dark";
-const KEY = "ghf-theme";        // 保存キー
-
+const KEY = "ghf-theme";
+const KEY_LOCK = "ghf-theme-lock"; // "1" のときだけユーザー固定
 
 export default function useTheme() {
-    // 初期値は localStorage から読み込み。なければ "light"
-    const [mode, setMode] = useState<Mode>(() => {
-        const m = (localStorage.getItem(KEY) as Mode | null) ?? "light";
-        return m;
-    });
+  const getSystem = () =>
+    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
 
+  const [mode, setMode] = useState<Mode>(() => {
+    const saved = localStorage.getItem(KEY) as Mode | null;
+    const locked = localStorage.getItem(KEY_LOCK) === "1";
+    // ★ ここがポイント：ロックされていなければ OS を優先（過去の保存値は無視）
+    return locked && saved ? saved : getSystem();
+  });
 
-    useEffect(() => {
-        // HTML 要素の data-theme を切り替え → CSS 変数が反映される
-        document.documentElement.setAttribute("data-theme", mode);
-        localStorage.setItem(KEY, mode);                            // 選択を保存
-    }, [mode]);
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", mode);
+  }, [mode]);
 
-
-    return {
-        mode,
-        toggle: () => setMode((m) => (m === "light" ? "dark" : "light")),   // トグル関数
-        set: setMode,
+  // OS変更に追従（ユーザー固定が無い場合のみ）
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = () => {
+      const locked = localStorage.getItem(KEY_LOCK) === "1";
+      if (!locked) setMode(mql.matches ? "dark" : "light");
     };
+    mql.addEventListener?.("change", handler) ?? mql.addListener(handler);
+    return () => mql.removeEventListener?.("change", handler) ?? mql.removeListener(handler);
+  }, []);
+
+  return {
+    mode,
+    toggle: () => {
+      setMode((m) => {
+        const next = m === "light" ? "dark" : "light";
+        localStorage.setItem(KEY, next);
+        localStorage.setItem(KEY_LOCK, "1"); // 手動切替＝固定
+        return next;
+      });
+    },
+    // 「OSに合わせる」に戻すAPI（任意でボタンに）
+    followSystem: () => {
+      localStorage.removeItem(KEY);
+      localStorage.removeItem(KEY_LOCK);
+      setMode(getSystem());
+    },
+  };
 }
