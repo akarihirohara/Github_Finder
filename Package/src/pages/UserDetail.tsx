@@ -1,14 +1,17 @@
+// =============================================
+// 役割: ユーザー詳細 + 公開リポジトリ一覧。並列取得＆キャンセル対応
+// =============================================
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { getRepos, getUser } from "../lib/github";
+import { Link, useParams } from "react-router-dom";             // URL から :login を取得
+import { getRepos, getUser } from "../lib/github";              // API 呼び出し
 import RepoCard, { type Repo } from "../components/RepoCard";
 
 type Status = "idle" | "loading" | "success" | "error";
 
-type Profile = Awaited<ReturnType<typeof getUser>>;
+type Profile = Awaited<ReturnType<typeof getUser>>; // getUser の戻り値型を抽出
 
 export default function UserDetail() {
-    const { login = "" } = useParams();
+    const { login = "" } = useParams();                             // 動的パラメータ（例: /user/octocat → login="octocat"）
     const [status, setStatus] = useState<Status>("idle");
     const [error, setError] = useState<string | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
@@ -16,26 +19,28 @@ export default function UserDetail() {
     const cancelRef = useRef<AbortController | null>(null);
 
     useEffect(() => {
-        if (!login) return;
+        if (!login) return;     // login が未定義なら何もしない
         setStatus("loading");
         setError(null);
 
+        // 直前のリクエストをキャンセル
         cancelRef.current?.abort();
         const controller = new AbortController();
         cancelRef.current = controller;
 
         (async () => {
             try {
+                // ユーザー情報とリポジトリを並列取得
                 const [u, r] = await Promise.all([
                     getUser(login, { signal: controller.signal }),
                     getRepos(login, { signal: controller.signal }),
                 ]);
-                if (controller.signal.aborted || cancelRef.current !== controller) return;
+                if (controller.signal.aborted || cancelRef.current !== controller) return;  // 古いレスポンスなら破棄
                 setProfile(u);
                 setRepos(r);
                 setStatus("success");
             } catch (e: any) {
-                if (e?.name === "CanceledError" || e?.name === "AbortError") return;
+                if (e?.name === "CanceledError" || e?.name === "AbortError") return;        // キャンセルは無視
                 const code = e?.response?.status;
                 if (code === 404) setError("ユーザーが見つかりませんでした。");
                 else if (code === 403 || code === 429) setError("レート制限中です。時間をおいて再試行してください。");
@@ -44,7 +49,7 @@ export default function UserDetail() {
             }
         })();
 
-        return () => controller.abort();
+        return () => controller.abort();    // アンマウント/依存変更時のクリーンアップ
     }, [login]);
 
     if (status === "loading") return <p className="badge">Loading…</p>;
@@ -52,11 +57,12 @@ export default function UserDetail() {
     return (
         <div className="card">
             <div style={{ marginBottom: 8 }}>⚠ {error}</div>
+            {/* 戻る導線。Home に戻ると直近の検索語は localStorage で復元される */}
             <Link className="button" to="/">Back To Search</Link>
         </div>
     );
 
-    if (!profile) return null;
+    if (!profile) return null;  // 異常系の保険
 
     return (
         <div className="grid" style={{ gridTemplateColumns: "320px 1fr" }}>
@@ -90,6 +96,7 @@ export default function UserDetail() {
             </aside>
 
 
+            {/* 右カラム: リポジトリ一覧 */}
             <section>
                 <div className="section-title">Public Repositories</div>
                 {repos.length === 0 && <p className="badge">公開リポジトリがありません。</p>}

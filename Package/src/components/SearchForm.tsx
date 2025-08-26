@@ -1,16 +1,20 @@
-import type { FormEvent } from "react";
+// =============================================
+// 役割: 検索欄 + Search/Clear ボタン。入力は制御コンポーネント
+// =============================================
+import type { FormEvent } from "react"; // TS 5 + verbatimModuleSyntax 対応: 型の import は type 指定
 
 
 type Props = {
-    value: string;
-    loading?: boolean;
-    onChange: (v: string) => void;
-    onSubmit: () => void;
-    onClear: () => void;
+    value: string; // 入力欄の現在値
+    loading?: boolean; // ローディング中は無効化
+    onChange: (v: string) => void; // 入力更新コールバック
+    onSubmit: () => void; // 検索実行
+    onClear: () => void; // クリア実行
 };
 
 
 export default function SearchForm({ value, loading, onChange, onSubmit, onClear }: Props) {
+    // Enter キーでの送信に対応
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         onSubmit();
