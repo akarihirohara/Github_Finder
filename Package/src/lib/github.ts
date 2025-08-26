@@ -14,21 +14,20 @@ const gh = axios.create({
     : undefined,
 });
 
-type Opt = { signal?: AbortSignal };
+type Opt = { signal?: AbortSignal; page?: number };
 
 // ユーザー検索（/search/users）。Home で使うため、最低限のフィールドに整形して返す
 export async function searchUsers(q: string, opt: Opt = {}): Promise<UserSummary[]> {
-    const { data } = await gh.get("/search/users", {
-        params: { q, per_page: 30 },    // 1ページ30件
-        signal: opt.signal,             // AbortController によるキャンセル
-    });
-    const items = (data?.items ?? []) as any[]; // API レスポンスの items 配列だけ使う
-    return items.map((u) => ({
-        id: u.id,
-        login: u.login,
-        avatar_url: u.avatar_url,
-        html_url: u.html_url,
-    }));
+  const { data } = await gh.get("/search/users", {
+    params: { q, per_page: 30, page: opt.page ?? 1 }, // ← page を指定
+    signal: opt.signal,
+  });
+  return (data.items ?? []).map((u: any) => ({
+    id: u.id,
+    login: u.login,
+    avatar_url: u.avatar_url,
+    html_url: u.html_url,
+  }));
 }
 
 // ユーザー詳細（/users/:login）

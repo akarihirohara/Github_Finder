@@ -27,7 +27,7 @@ export default function SearchForm({ value, loading, onChange, onSubmit, onClear
             className="input"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            placeholder="GitHubユーザーを検索"
+            placeholder="Search GitHub users"
             aria-label="Search GitHub users"
             disabled={loading}
             />

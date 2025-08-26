@@ -59,7 +59,7 @@ body {
 
 .results-grid {
   display: grid !important; /* ← 上書きされないよう強制 */
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   gap: 16px;
 }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px;}

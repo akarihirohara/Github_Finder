@@ -42,9 +42,9 @@ export default function UserDetail() {
             } catch (e: any) {
                 if (e?.name === "CanceledError" || e?.name === "AbortError") return;        // キャンセルは無視
                 const code = e?.response?.status;
-                if (code === 404) setError("ユーザーが見つかりませんでした。");
-                else if (code === 403 || code === 429) setError("レート制限中です。時間をおいて再試行してください。");
-                else setError("読み込みに失敗しました。");
+                if (code === 404) setError("No users found.");
+                else if (code === 403 || code === 429) setError("Rate limiting in progress. Please try again later.");
+                else setError("Failed to load.");
                 setStatus("error");
             }
         })();
