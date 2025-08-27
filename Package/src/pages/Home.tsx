@@ -2,7 +2,7 @@
 // 役割: 検索UIの司令塔。入力/検索/結果/状態管理（useState 版）
 // Back To Search での保持は localStorage を利用
 // =============================================
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import SearchForm from "../components/SearchForm";
 import UserCard, { type UserSummary } from "../components/UserCard";
 import { searchUsers } from "../lib/github";
@@ -119,6 +119,10 @@ export default function Home() {
                     >
                         Show More
                     </button>
+                    {/* ここで total を読む（例: 60 / 178 results） */}
+                    <p className="badge" style={{ marginTop: 8 }}>
+                        {Math.min(page * 30, total)} / {total} results
+                    </p>
                 </div>
             )}
         </div>
