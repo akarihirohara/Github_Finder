@@ -2,7 +2,7 @@
 // 役割: 検索UIの司令塔。入力/検索/結果/状態管理（useState 版）
 // Back To Search での保持は localStorage を利用
 // =============================================
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import SearchForm from "../components/SearchForm";
 import UserCard, { type UserSummary } from "../components/UserCard";
 import { searchUsers } from "../lib/github";
@@ -72,6 +72,18 @@ export default function Home() {
         setError(null);
         localStorage.removeItem(KEY);
     };
+
+    // 初回マウント時：前回の検索語があれば自動検索
+    useEffect(() => {
+        const saved = localStorage.getItem(KEY) ?? "";
+        if (saved) {
+            // state も揃えておく（UIと一致させる）
+            setSearchWord(saved);
+            setPage(1);
+            // state反映を待たずに、引数で確実に検索を走らせる
+            doSearch(saved, 1);
+        }
+    }, []);
 
     return (
         <div>
