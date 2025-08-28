@@ -16,7 +16,7 @@ export default function Layout() {
                 </div>
                 <nav className="nav">
                     {/* NavLink はアクティブ時に .active クラスが付与される */}
-                    <NavLink to="/" end>Home</NavLink>
+                    <NavLink to="/" state={{ reset: true }} end>Home</NavLink>
                     <NavLink to="/about">About</NavLink>
                     <ThemeToggle />
                 </nav>

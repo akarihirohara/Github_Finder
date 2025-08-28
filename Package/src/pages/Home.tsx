@@ -6,6 +6,7 @@ import { useRef, useState, useEffect } from "react";
 import SearchForm from "../components/SearchForm";
 import UserCard, { type UserSummary } from "../components/UserCard";
 import { searchUsers } from "../lib/github";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const KEY = "ghf-last-query";   // 直近の検索語を保存するキー
 
@@ -21,6 +22,8 @@ export default function Home() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
     const [total, setTotal] = useState(0); // state に total を追加
+    const location = useLocation();
+    const navigate = useNavigate();
 
     const PER_PAGE = 30;
 
@@ -73,17 +76,39 @@ export default function Home() {
         localStorage.removeItem(KEY);
     };
 
-    // 初回マウント時：前回の検索語があれば自動検索
-    useEffect(() => {
-        const saved = localStorage.getItem(KEY) ?? "";
-        if (saved) {
-            // state も揃えておく（UIと一致させる）
-            setSearchWord(saved);
-            setPage(1);
-            // state反映を待たずに、引数で確実に検索を走らせる
-            doSearch(saved, 1);
-        }
-    }, []);
+    // ❶ reset 指定で来たときは完全初期化
+  useEffect(() => {
+    const shouldReset = (location.state as any)?.reset === true;
+    if (!shouldReset) return;
+
+    // 保存値もクリアして完全初期化
+    localStorage.removeItem(KEY);
+    setSearchWord("");
+    setSearchResult([]);
+    setStatus("idle");
+    setError(null);
+    setPage(1);
+    setHasMore(false);
+    setTotal(0);
+
+    // 履歴の state を消しておく（F5や再遷移で再度resetしないように）
+    navigate(".", { replace: true, state: null });
+  }, [location.state, navigate]);
+
+  // ❷ 初回マウント時：前回語があれば復元＆自動検索（ただし reset じゃないとき）
+  useEffect(() => {
+    const shouldReset = (location.state as any)?.reset === true;
+    if (shouldReset) return; // 上のリセット優先
+
+    const saved = localStorage.getItem(KEY) ?? "";
+    if (saved) {
+      setSearchWord(saved);
+      setPage(1);
+      doSearch(saved, 1);
+    }
+  // location.state は ❶で replace して null にするので依存は空でもOK
+  // 安全のため location.state を入れても挙動は変わりません
+  }, [location.state]); 
 
     return (
         <div>
