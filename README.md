@@ -13,7 +13,11 @@ Execute the following command in the VS Code terminal to clone it.
  git clone https://github.com/akarihirohara/Github_Finder.git
  ```
 
-Go to the Package directory in the terminal, type "npm Install" and "npm run dev".
+Go to the Package directory in the terminal, type
+```
+npm Install
+npm run dev
+```
 
 Access the link generated in the terminal by pressing “Ctrl + click”.
 
