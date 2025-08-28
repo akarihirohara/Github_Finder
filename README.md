@@ -7,6 +7,7 @@
 ## How to use
 ### On the local environment
 - Please install node.js and npm: https://nodejs.org/ja/download
+
 Execute the following command in the VS Code terminal to clone it.
  ```
  git clone https://github.com/akarihirohara/Github_Finder.git
